@@ -16,13 +16,10 @@ const NOTES = [
   { name: 'A3',   file: 'sounds/a3.mp3',   angle: 225,  color: 0x3498db }
 ]
 
-const POOL_SIZE = 6
-
 Page({
   state: {
-    players: [],
-    nextPlayer: 0,
-    noteWidgets: []
+    noteWidgets: [],
+    players: []
   },
 
   build() {
@@ -39,6 +36,22 @@ Page({
     })
 
     this.state.noteWidgets = []
+    this.state.players = []
+
+    for (let i = 0; i < NOTES.length; i++) {
+      let player = null
+      try {
+        player = create(id.PLAYER)
+        player.addEventListener(player.event.PREPARE, (result) => {
+          if (result) {
+            try { player.start() } catch (e) {}
+          }
+        })
+      } catch (e) {
+        player = null
+      }
+      this.state.players.push(player)
+    }
 
     const dingR = Math.floor(maxR * 0.34)
     this.addZone(0, cx, cy, dingR, NOTES[0])
@@ -51,20 +64,6 @@ Page({
       const nx = Math.floor(cx + ringDist * Math.cos(rad))
       const ny = Math.floor(cy + ringDist * Math.sin(rad))
       this.addZone(i, nx, ny, ringR, note)
-    }
-
-    this.state.players = []
-    this.state.nextPlayer = 0
-    for (let p = 0; p < POOL_SIZE; p++) {
-      try {
-        const player = create(id.PLAYER)
-        player.addEventListener(player.event.PREPARE, (result) => {
-          if (result) {
-            try { player.start() } catch (e) {}
-          }
-        })
-        this.state.players.push(player)
-      } catch (e) {}
     }
   },
 
@@ -125,11 +124,16 @@ Page({
       }, 160)
     } catch (e) {}
 
-    const players = this.state.players
-    if (!players || players.length === 0) return
-
-    const player = players[this.state.nextPlayer % players.length]
-    this.state.nextPlayer = (this.state.nextPlayer + 1) % players.length
+    let player = this.state.players[index]
+    if (!player) {
+      for (let i = 0; i < this.state.players.length; i++) {
+        if (this.state.players[i]) {
+          player = this.state.players[i]
+          break
+        }
+      }
+    }
+    if (!player) return
 
     try {
       try { player.stop() } catch (e) {}
@@ -141,7 +145,9 @@ Page({
   onDestroy() {
     const players = this.state.players || []
     for (let i = 0; i < players.length; i++) {
-      try { players[i].stop() } catch (e) {}
+      if (players[i]) {
+        try { players[i].stop() } catch (e) {}
+      }
     }
   }
 })
