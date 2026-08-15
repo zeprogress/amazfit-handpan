@@ -4,7 +4,6 @@ import { create, id } from '@zos/media'
 const W = 432
 const H = 514
 
-// 8 notes on ring + center Ding — maximal fill
 const NOTES = [
   { name: 'Ding', file: 'sounds/ding.mp3', color: 0x1abc9c },
   { name: 'A4',   file: 'sounds/a4.mp3',   angle: -90,  color: 0x3498db },
@@ -17,19 +16,16 @@ const NOTES = [
   { name: 'A3',   file: 'sounds/a3.mp3',   angle: 225,  color: 0x3498db }
 ]
 
-const POOL_SIZE = 6
-
 Page({
   state: {
-    players: [],
-    nextPlayer: 0,
-    noteWidgets: []
+    noteWidgets: [],
+    // one dedicated player per note index
+    players: []
   },
 
   build() {
     const cx = Math.floor(W / 2)
     const cy = Math.floor(H / 2) + 6
-    // use almost full screen for the instrument
     const maxR = Math.floor(Math.min(W, H) * 0.48)
 
     createWidget(widget.FILL_RECT, {
@@ -41,12 +37,29 @@ Page({
     })
 
     this.state.noteWidgets = []
+    this.state.players = []
 
-    // Ding — very large center
+    // Create up to one player per note (polyphony if OS allows)
+    for (let i = 0; i < NOTES.length; i++) {
+      let player = null
+      try {
+        player = create(id.PLAYER)
+        player.addEventListener(player.event.PREPARE, (result) => {
+          if (result) {
+            try { player.start() } catch (e) {}
+          }
+        })
+      } catch (e) {
+        player = null
+      }
+      this.state.players.push(player)
+    }
+
+    // Ding center
     const dingR = Math.floor(maxR * 0.34)
     this.addZone(0, cx, cy, dingR, NOTES[0])
 
-    // Ring notes — large, close to edge, almost touching neighbors
+    // Ring
     const ringDist = maxR * 0.62
     const ringR = Math.floor(maxR * 0.22)
     for (let i = 1; i < NOTES.length; i++) {
@@ -55,22 +68,6 @@ Page({
       const nx = Math.floor(cx + ringDist * Math.cos(rad))
       const ny = Math.floor(cy + ringDist * Math.sin(rad))
       this.addZone(i, nx, ny, ringR, note)
-    }
-
-    // Audio pool
-    this.state.players = []
-    this.state.nextPlayer = 0
-    for (let p = 0; p < POOL_SIZE; p++) {
-      try {
-        const player = create(id.PLAYER)
-        const idx = p
-        player.addEventListener(player.event.PREPARE, (result) => {
-          if (result) {
-            try { player.start() } catch (e) {}
-          }
-        })
-        this.state.players.push(player)
-      } catch (e) {}
     }
   },
 
@@ -95,7 +92,6 @@ Page({
       text_style: text_style.NONE
     })
 
-    // Button slightly larger than visual circle for easier hit
     const hit = nr + 6
     createWidget(widget.BUTTON, {
       x: nx - hit,
@@ -132,14 +128,22 @@ Page({
       }, 160)
     } catch (e) {}
 
-    const players = this.state.players
-    if (!players || players.length === 0) return
+    // Prefer dedicated player for this note so other notes keep playing
+    let player = this.state.players[index]
 
-    const player = players[this.state.nextPlayer % players.length]
-    this.state.nextPlayer = (this.state.nextPlayer + 1) % players.length
+    // Fallback: first available player in list
+    if (!player) {
+      for (let i = 0; i < this.state.players.length; i++) {
+        if (this.state.players[i]) {
+          player = this.state.players[i]
+          break
+        }
+      }
+    }
+    if (!player) return
 
     try {
-      // only stop THIS player slot, others keep sounding
+      // Only restart THIS note's player — do not touch others
       try { player.stop() } catch (e) {}
       player.setSource(player.source.FILE, { file: item.note.file })
       player.prepare()
@@ -149,7 +153,9 @@ Page({
   onDestroy() {
     const players = this.state.players || []
     for (let i = 0; i < players.length; i++) {
-      try { players[i].stop() } catch (e) {}
+      if (players[i]) {
+        try { players[i].stop() } catch (e) {}
+      }
     }
   }
 })
