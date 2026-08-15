@@ -1,35 +1,33 @@
 import { createWidget, widget, align, text_style, prop } from '@zos/ui'
 import { create, id } from '@zos/media'
-import { Vibrator, VIBRATOR_SCENE_SHORT_LIGHT } from '@zos/sensor'
 
-// Amazfit Bip Max screen
+// Amazfit Bip Max
 const W = 432
 const H = 514
 
 const NOTES = [
-  { name: 'Ding', file: 'sounds/ding.mp3', x: 0.50, y: 0.50, r: 0.16, color: 0x1abc9c },
-  { name: 'A3',   file: 'sounds/a3.mp3',   x: 0.28, y: 0.30, r: 0.11, color: 0x3498db },
-  { name: 'Bb3',  file: 'sounds/bb3.mp3',  x: 0.72, y: 0.30, r: 0.11, color: 0x9b59b6 },
-  { name: 'C4',   file: 'sounds/c4.mp3',   x: 0.18, y: 0.52, r: 0.10, color: 0xe67e22 },
-  { name: 'D4',   file: 'sounds/d4.mp3',   x: 0.82, y: 0.52, r: 0.10, color: 0xe74c3c },
-  { name: 'E4',   file: 'sounds/e4.mp3',   x: 0.28, y: 0.72, r: 0.10, color: 0xf1c40f },
-  { name: 'F4',   file: 'sounds/f4.mp3',   x: 0.50, y: 0.78, r: 0.11, color: 0x2ecc71 },
-  { name: 'G4',   file: 'sounds/g4.mp3',   x: 0.72, y: 0.72, r: 0.10, color: 0x1abc9c },
-  { name: 'A4',   file: 'sounds/a4.mp3',   x: 0.50, y: 0.22, r: 0.10, color: 0x3498db }
+  { name: 'Ding', file: 'sounds/ding.mp3', x: 0.50, y: 0.50, r: 0.20, color: 0x1abc9c },
+  { name: 'A3',   file: 'sounds/a3.mp3',   x: 0.22, y: 0.22, r: 0.13, color: 0x3498db },
+  { name: 'Bb3',  file: 'sounds/bb3.mp3',  x: 0.78, y: 0.22, r: 0.13, color: 0x9b59b6 },
+  { name: 'C4',   file: 'sounds/c4.mp3',   x: 0.12, y: 0.50, r: 0.13, color: 0xe67e22 },
+  { name: 'D4',   file: 'sounds/d4.mp3',   x: 0.88, y: 0.50, r: 0.13, color: 0xe74c3c },
+  { name: 'E4',   file: 'sounds/e4.mp3',   x: 0.22, y: 0.78, r: 0.13, color: 0xf1c40f },
+  { name: 'F4',   file: 'sounds/f4.mp3',   x: 0.50, y: 0.88, r: 0.13, color: 0x2ecc71 },
+  { name: 'G4',   file: 'sounds/g4.mp3',   x: 0.78, y: 0.78, r: 0.13, color: 0x1abc9c },
+  { name: 'A4',   file: 'sounds/a4.mp3',   x: 0.50, y: 0.12, r: 0.13, color: 0x3498db }
 ]
 
 Page({
   state: {
     player: null,
-    vibrator: null,
     noteWidgets: [],
     isPlaying: false
   },
 
   build() {
     const cx = Math.floor(W / 2)
-    const cy = Math.floor(H / 2)
-    const maxR = Math.floor(Math.min(W, H) * 0.42)
+    const cy = Math.floor(H / 2) + 8
+    const maxR = Math.floor(Math.min(W, H) * 0.44)
 
     createWidget(widget.FILL_RECT, {
       x: 0,
@@ -42,18 +40,25 @@ Page({
     createWidget(widget.CIRCLE, {
       center_x: cx,
       center_y: cy,
+      radius: maxR + 6,
+      color: 0x1a1f26
+    })
+
+    createWidget(widget.CIRCLE, {
+      center_x: cx,
+      center_y: cy,
       radius: maxR,
       color: 0x2d333b
     })
 
     createWidget(widget.TEXT, {
       x: 0,
-      y: 12,
+      y: 6,
       w: W,
-      h: 30,
+      h: 26,
       text: 'HANDPAN',
-      text_size: 20,
-      color: 0xffffff,
+      text_size: 18,
+      color: 0xaaaaaa,
       align_h: align.CENTER_H,
       align_v: align.CENTER_V,
       text_style: text_style.NONE
@@ -63,8 +68,8 @@ Page({
 
     for (let i = 0; i < NOTES.length; i++) {
       const note = NOTES[i]
-      const nx = Math.floor(cx + (note.x - 0.5) * maxR * 1.7)
-      const ny = Math.floor(cy + (note.y - 0.5) * maxR * 1.7)
+      const nx = Math.floor(cx + (note.x - 0.5) * maxR * 1.95)
+      const ny = Math.floor(cy + (note.y - 0.5) * maxR * 1.95)
       const nr = Math.floor(note.r * maxR)
 
       const circle = createWidget(widget.CIRCLE, {
@@ -75,12 +80,12 @@ Page({
       })
 
       createWidget(widget.TEXT, {
-        x: nx - 28,
-        y: ny - 10,
-        w: 56,
-        h: 20,
+        x: nx - 30,
+        y: ny - 11,
+        w: 60,
+        h: 22,
         text: note.name,
-        text_size: 14,
+        text_size: note.name === 'Ding' ? 16 : 15,
         color: 0xffffff,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
@@ -111,22 +116,16 @@ Page({
 
     createWidget(widget.TEXT, {
       x: 0,
-      y: H - 40,
+      y: H - 36,
       w: W,
-      h: 28,
-      text: 'D Kurd - tap zones',
-      text_size: 16,
-      color: 0x888888,
+      h: 26,
+      text: 'D Kurd',
+      text_size: 15,
+      color: 0x666666,
       align_h: align.CENTER_H,
       align_v: align.CENTER_V,
       text_style: text_style.NONE
     })
-
-    try {
-      this.state.vibrator = new Vibrator()
-    } catch (e) {
-      this.state.vibrator = null
-    }
   },
 
   ensurePlayer() {
@@ -159,14 +158,8 @@ Page({
         try {
           item.circle.setProperty(prop.MORE, { color: item.baseColor })
         } catch (e) {}
-      }, 200)
+      }, 220)
     } catch (e) {}
-
-    if (this.state.vibrator) {
-      try {
-        this.state.vibrator.start({ mode: VIBRATOR_SCENE_SHORT_LIGHT })
-      } catch (e) {}
-    }
 
     const player = this.ensurePlayer()
     if (!player) return
