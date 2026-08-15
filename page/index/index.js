@@ -1,7 +1,10 @@
 import { createWidget, widget, align, text_style, prop } from '@zos/ui'
 import { create, id } from '@zos/media'
-import { getDeviceInfo } from '@zos/device'
 import { Vibrator, VIBRATOR_SCENE_SHORT_LIGHT } from '@zos/sensor'
+
+// Amazfit Bip Max screen
+const W = 432
+const H = 514
 
 const NOTES = [
   { name: 'Ding', file: 'sounds/ding.mp3', x: 0.50, y: 0.50, r: 0.16, color: 0x1abc9c },
@@ -24,19 +27,10 @@ Page({
   },
 
   build() {
-    let W = 432
-    let H = 514
-    try {
-      const info = getDeviceInfo()
-      if (info && info.width) W = info.width
-      if (info && info.height) H = info.height
-    } catch (e) {}
-
     const cx = Math.floor(W / 2)
     const cy = Math.floor(H / 2)
     const maxR = Math.floor(Math.min(W, H) * 0.42)
 
-    // Background - always visible
     createWidget(widget.FILL_RECT, {
       x: 0,
       y: 0,
@@ -45,7 +39,6 @@ Page({
       color: 0x111111
     })
 
-    // Main disc
     createWidget(widget.CIRCLE, {
       center_x: cx,
       center_y: cy,
@@ -53,7 +46,6 @@ Page({
       color: 0x2d333b
     })
 
-    // Title
     createWidget(widget.TEXT, {
       x: 0,
       y: 12,
@@ -95,7 +87,6 @@ Page({
         text_style: text_style.NONE
       })
 
-      // Visible tappable button
       createWidget(widget.BUTTON, {
         x: nx - nr,
         y: ny - nr,
@@ -131,7 +122,6 @@ Page({
       text_style: text_style.NONE
     })
 
-    // Lazy init sensors (do not crash build)
     try {
       this.state.vibrator = new Vibrator()
     } catch (e) {
@@ -163,7 +153,6 @@ Page({
     const item = this.state.noteWidgets[index]
     if (!item) return
 
-    // Highlight
     try {
       item.circle.setProperty(prop.MORE, { color: item.highlightColor })
       setTimeout(() => {
@@ -173,14 +162,12 @@ Page({
       }, 200)
     } catch (e) {}
 
-    // Vibrate
     if (this.state.vibrator) {
       try {
         this.state.vibrator.start({ mode: VIBRATOR_SCENE_SHORT_LIGHT })
       } catch (e) {}
     }
 
-    // Sound
     const player = this.ensurePlayer()
     if (!player) return
 
