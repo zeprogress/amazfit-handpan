@@ -5,17 +5,15 @@
     "appName": "Handpan",
     "appType": "app",
     "version": {
-      "code": 3,
-      "name": "1.0.2"
+      "code": 4,
+      "name": "1.0.3"
     },
     "icon": "icon.png",
     "vender": "zeprogress",
     "description": "Virtual Handpan for Amazfit Bip Max",
     "_pikeCompatibled": 1
   },
-  "permissions": [
-    "device:os.vibrator"
-  ],
+  "permissions": [],
   "runtime": {
     "apiVersion": {
       "compatible": "3.0",
