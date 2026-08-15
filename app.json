@@ -5,8 +5,8 @@
     "appName": "Handpan",
     "appType": "app",
     "version": {
-      "code": 2,
-      "name": "1.0.1"
+      "code": 3,
+      "name": "1.0.2"
     },
     "icon": "icon.png",
     "vender": "zeprogress",
@@ -14,8 +14,7 @@
     "_pikeCompatibled": 1
   },
   "permissions": [
-    "device:os.vibrator",
-    "data:os.device.info"
+    "device:os.vibrator"
   ],
   "runtime": {
     "apiVersion": {
