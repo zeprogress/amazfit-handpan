@@ -1,0 +1,15 @@
+{
+  "name": "amazfit-handpan",
+  "version": "1.0.0",
+  "description": "Virtual Handpan for Amazfit Bip Max (Zepp OS)",
+  "scripts": {
+    "dev": "zeus dev",
+    "preview": "zeus preview",
+    "build": "zeus build"
+  },
+  "author": "zeprogress",
+  "license": "MIT",
+  "devDependencies": {
+    "@zeppos/zeus-cli": "latest"
+  }
+}
