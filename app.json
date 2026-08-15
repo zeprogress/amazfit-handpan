@@ -5,16 +5,17 @@
     "appName": "Handpan",
     "appType": "app",
     "version": {
-      "code": 1,
-      "name": "1.0.0"
+      "code": 2,
+      "name": "1.0.1"
     },
     "icon": "icon.png",
     "vender": "zeprogress",
-    "description": "Virtual Handpan for Amazfit Bip Max - play authentic tones by tapping the screen",
+    "description": "Virtual Handpan for Amazfit Bip Max",
     "_pikeCompatibled": 1
   },
   "permissions": [
-    "device:os.vibrator"
+    "device:os.vibrator",
+    "data:os.device.info"
   ],
   "runtime": {
     "apiVersion": {
@@ -50,9 +51,6 @@
     },
     "ru-RU": {
       "appName": "Хэндпан"
-    },
-    "zh-CN": {
-      "appName": "手碟"
     }
   },
   "defaultLanguage": "ru-RU"
